@@ -1,3 +1,5 @@
+//simple brush, smooth brush
+
 //a*x1 + b*x2
 function add(x1, x2) {
     return {x: x1.x + x2.x, y: x1.y + x2.y};
@@ -15,7 +17,7 @@ function rot(x) {
     return {x: -x.y, y: x.x};
 }
 
-let tireLength = 20;
+let tireLength = 10;
 let tireWidth = 10;
 function tire(b) {
     if (!b.tireTime) b.tireTime = 0;
@@ -25,6 +27,8 @@ function tire(b) {
     let r = b.size;
     let ctx = b.canvas.getContext('2d');
     ctx.fillStyle = b.color;
+    //tack on a few previous nodes to give ourselves some
+    //incoming velocity information for the first few nodes
     if (b.pSmoothNodes) {
         let l = b.pSmoothNodes.length;
         l >= 1 && b.smoothNodes.unshift(b.pSmoothNodes[l - 1]);
@@ -32,7 +36,7 @@ function tire(b) {
         l >= 3 && b.smoothNodes.unshift(b.pSmoothNodes[l - 3]);
     }
     let pts = b.smoothNodes;
-
+    
     for (let p = 3; p < pts.length; p++) {
         
         let p0 = pts[p-3];
@@ -86,6 +90,7 @@ function tire(b) {
                 ctx.lineTo(c223.x, c223.y);
                 ctx.closePath();
                 ctx.fill();
+                ctx.stroke();
             }
             else {
                 //outer treads
@@ -96,6 +101,7 @@ function tire(b) {
                 ctx.lineTo(c0.x, c0.y);
                 ctx.closePath();
                 ctx.fill();
+                ctx.stroke();
 
                 ctx.beginPath();
                 ctx.moveTo(c011.x, c011.y);
@@ -104,6 +110,7 @@ function tire(b) {
                 ctx.lineTo(c1.x, c1.y);
                 ctx.closePath();
                 ctx.fill();
+                ctx.stroke();
             }
 
             t = nextT;
@@ -125,10 +132,12 @@ function tire(b) {
 function stampTip(b) {
     let ctx = b.canvas.getContext('2d');
     let s = b.stampCanvas;
+
+    let r = b.size/2 * b.pressure
     
     for (let i = 0; i < b.smoothNodes.length; i++) {
         let node = b.smoothNodes[i];
-        ctx.drawImage(s, 0, 0, s.width, s.height, node.x - b.size/2, node.y - b.size/2, b.size, b.size);
+        ctx.drawImage(s, 0, 0, s.width, s.height, node.x - r, node.y - r, r*2, r*2);
     }
     
 }

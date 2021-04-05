@@ -1,3 +1,6 @@
+//TODO change nodes to springNodes, change allNodes to nodes
+//smoothNodes smoothly connects nodes[l - 3] and nodes[l - 2]
+
 function defaultBrush(b) {
     let left, right, top, bottom;
     let r0 = b.pPressure * b.pSize;
