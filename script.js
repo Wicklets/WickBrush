@@ -15,6 +15,7 @@ let brush = new WickBrush({
     canvas: brushCanvas, 
     debug: true, 
     debugCanvas: debugCanvas,
+    smoothNodesSpacing: 10,
     interval: 300,
 });
 

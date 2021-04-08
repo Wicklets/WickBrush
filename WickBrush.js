@@ -7,7 +7,7 @@ function defaultBrush(b) {
     let r1 = b.pressure * b.size;
     let ctx = b.canvas.getContext('2d');
     let pts = b.smoothNodes;
-    ctx.fillColor = b.color;
+    //ctx.fillColor = b.color;
     for (let pt of pts) {
         let r = pt.t * r1 + (1 - pt.t) * r0;
         ctx.beginPath();
@@ -40,6 +40,10 @@ class WickBrush {
         this.includeSmoothNodes = args.includeSmoothNodes === undefined ? 
             true : 
             args.includeSmoothNodes; //TODO getter/setter
+        this.smoothNodesSpacing = args.smoothNodesSpacing === undefined ? 
+            2 :
+            args.smoothNodesSpacing; //TODO getter/setter
+        this.smoothNodesTime = 0;
         this.interval = args.interval || 10; //TODO getter/setter
         
         this.size = args.size || 40;
@@ -179,7 +183,7 @@ class WickBrush {
         let p1 = this.allNodes[l - 3];
         let p2 = this.allNodes[l - 2];
         let p3 = this.allNodes[l - 1];
-        let t = 0;
+        let t = this.smoothNodesTime;
         while (t < 1) {        
             let p = {
                 x: 0.5 * (
@@ -211,13 +215,11 @@ class WickBrush {
                     ),
             }
             let dpdtMag = Math.sqrt(dpdt.x * dpdt.x + dpdt.y * dpdt.y);
-            //TODO: select step size adaptively
-            // based on radius?
-            // this.getSmoothNodesStepSize(t)?
-            let dpMag = 2;
+            let dpMag = this.smoothNodesSpacing;
             let dt = dpMag / dpdtMag;
             t += dt;
         }
+        this.smoothNodesTime = isNaN(t) ? 0 : t % 1;
     }
 
     down(e) {
@@ -304,7 +306,7 @@ class WickBrush {
     move(e) {
         let r = false;
         if (this.onMove) {
-            r = this.onMove(e);
+            r = this.onMove(this, e);
         }
 
         if (!r) {
@@ -316,7 +318,7 @@ class WickBrush {
     }
 
     up(e) {
-        this.onUp && this.onUp(e, this);
+        this.onUp && this.onUp(this, e);
         
         //should catch up go before onUp?
         if (this.catchUp) {
