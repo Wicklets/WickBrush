@@ -6,18 +6,19 @@ WickBrush is a JavaScript library for creating drawing brushes on HTML canvases.
 # Quick Start
 
 ## Basic Brush
-To create a brush, you make an instance of the WickBrush class, which requires a canvas to draw on:
+To create a brush, you make an instance of the WickBrush class, which requires a HTML Canvas to draw on:
 
-    let brush = new WickBrush({
-	    canvas: canvas
-	});
+```javascript
+let brush = new WickBrush({
+    canvas: canvas
+});
+```
   
 Now you can draw on your canvas!
 
 ## Custom BrushTips
-Custom BrushTips in WickBrush are just functions that draw onto an HTML5 Canvas. Simply import them and pass them to your brush, or change the brush.brushTip:
+Custom BrushTips in WickBrush are just functions that draw onto an HTML Canvas. Simply import them from `/brushes.js` and pass them to your brush, or change the brush.brushTip:
 
-    import { crazyBrush, curlyBrush } from 'wick-custom-brushes';
     
 	let brush = new WickBrush({
 	    canvas: canvas,
@@ -41,16 +42,17 @@ Here are all the properties of a Brush. You can change them, or use them in a cu
 |`pSmoothNodes`  | [{}: Node] | `smoothNodes` from the previous draw step, `null` on the first step | read only |
 | `smoothNodesSpacing` | Number | the approximate number of pixels of spacing between consecutive `smoothNodes` |
 | `includeSmoothNodes` | Boolean | Whether or not to calculate the values for `smoothNodes`. If you need super high performance and are not using them, you may want to turn them off. |
+| `interval` | Number | The number of milliseconds between each draw step. |
+| `smoothing` | Number 1-100 | a simple slider to control the smoothness of the brush (setting this actually changes `numSpringNodes` and `tension`, you can set those manually for finer control) |
+| `numSpringNodes` | Number | The number of spring nodes to simulate for the purpose of smoothing the brush path. The more nodes, the more smoothing |
+| `tension` | Number 1-100| The tension of the spring nodes. The higher lower the value, the smoother the path. |
 | `fillColor` | String | the color of the brush | |
 | `strokeColor` | String | a secondary color, often not set or used in the examples |
 | `size` | Number | The size of the brush (in pixels)
 | `pressure` | Number 0-1 | The brush pressure. It's not set by WickBrush, we recommend using pressure.js to set this value
 | `debug` | Boolean | If true, then some debug displays are drawn on the `debugCanvas` |
 | `debugCanvas` | HTML5 Canvas | A canvas to draw debug information on, only needed if `debug` is true. It should be placed right on top of `canvas`. |
-| `interval` | Number | The number of milliseconds between each draw step. |
-| `smoothing` | Number 1-100 | a simple slider to control the smoothness of the brush (setting this actually changes `numSpringNodes` and `tension`, you can set those manually for finer control) |
-| `numSpringNodes` | Number | The number of spring nodes to simulate for the purpose of smoothing the brush path. The more nodes, the more smoothing |
-| `tension` | Number 1-100| The tension of the spring nodes. The higher lower the value, the smoother the path. |
+
 |`catchUp`| Boolean | After the brush is lifted (after `onUp` is called), the brush tip still lags behind the location of the mouse because of the spring nodes. If `catchUp` is true, then the spring nodes are used as nodes so that the brush tip catches up to the mouse. |
 |`bounds`| {left: Number, right: Number, top: Number, bottom: Number} | A rectangle bound of the current stroke. |
 
