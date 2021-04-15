@@ -10,7 +10,7 @@ To create a brush, you make an instance of the WickBrush class, which requires a
 
     let brush = new WickBrush({
 	    canvas: canvas
-	    });
+	});
   
 Now you can draw on your canvas!
 
