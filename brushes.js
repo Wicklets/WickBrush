@@ -1,4 +1,4 @@
-//simple brush, smooth brush
+//simple, smooth, tire, stroke
 
 //a*x1 + b*x2
 function add(x1, x2) {

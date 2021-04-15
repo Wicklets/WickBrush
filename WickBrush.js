@@ -43,12 +43,12 @@ class WickBrush {
         this.smoothNodesSpacing = args.smoothNodesSpacing === undefined ? 
             2 :
             args.smoothNodesSpacing; //TODO getter/setter
-        this.smoothNodesTime = 0;
         this.interval = args.interval || 10; //TODO getter/setter
         
         this.size = args.size || 40;
         this.pressure = 1;
-        this.color = args.fillColor || '0x000000';
+        this.fillColor = args.fillColor || '0x000000';
+        this.strokeColor = args.strokeColor || '0x000000';
 
         this.onDown = args.onDown;
         this.onDraw = args.onDraw;
@@ -183,7 +183,7 @@ class WickBrush {
         let p1 = this.allNodes[l - 3];
         let p2 = this.allNodes[l - 2];
         let p3 = this.allNodes[l - 1];
-        let t = this.smoothNodesTime;
+        let t = 0;
         while (t < 1) {        
             let p = {
                 x: 0.5 * (
@@ -219,7 +219,6 @@ class WickBrush {
             let dt = dpMag / dpdtMag;
             t += dt;
         }
-        this.smoothNodesTime = isNaN(t) ? 0 : t % 1;
     }
 
     down(e) {
