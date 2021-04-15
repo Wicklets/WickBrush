@@ -6,17 +6,16 @@ brushCanvas.height = window.innerHeight;
 debugCanvas.width = window.innerWidth;
 debugCanvas.height = window.innerHeight;
 
-
 let brush = new WickBrush({
-    //brushTip: tire,
+    brushTip: basicLineBrushTip,
     size: 10,
-    numNodes: 10, 
+    numNodes: 1, 
     tension: 25, 
     canvas: brushCanvas, 
-    debug: true, 
+    //debug: true, 
     debugCanvas: debugCanvas,
     smoothNodesSpacing: 2,
-    interval: 300,
+    //interval: 300,
 });
 
 // stampBrush.onDown = function(b) {

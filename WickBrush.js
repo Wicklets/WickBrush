@@ -229,12 +229,12 @@ class WickBrush {
         //initialize nodes
         this.nodes = [];
         let rect = this.canvas.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
+        this.mouseX = e.clientX - rect.left;
+        this.mouseY = e.clientY - rect.top;
         for (let n = 0; n < this.numNodes; n++) {
             this.nodes.push({
-                x: x,
-                y: y
+                x: this.mouseX,
+                y: this.mouseY
             });
         }
         this.node = this.nodes[this.nodes.length - 1];
@@ -280,12 +280,13 @@ class WickBrush {
                 //again, needs to be new object so it's not just a shallow copy
                 newNodes.push({
                     x: (1 - t) * lastNode.x + t * node.x, 
-                    y: (1 - t) * lastNode.y + t * node.y});
+                    y: (1 - t) * lastNode.y + t * node.y
+                });
             }
             else {
                 newNodes.push({
-                    x: node.x,
-                    y: node.y
+                    x: this.mouseX,
+                    y: this.mouseY
                 });
             }
             lastNode = node;
@@ -311,15 +312,14 @@ class WickBrush {
         if (!r) {
             //update root node
             let rect = this.canvas.getBoundingClientRect();
-            this.nodes[0].x = e.clientX - rect.left;
-            this.nodes[0].y = e.clientY - rect.top;
+            this.mouseX = e.clientX - rect.left;
+            this.mouseY = e.clientY - rect.top;
         }
     }
 
     up(e) {
         this.onUp && this.onUp(this, e);
         
-        //should catch up go before onUp?
         if (this.catchUp) {
             while(this.nodes.length >= 2) {
                 this.updatePrevious();

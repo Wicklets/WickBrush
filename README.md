@@ -121,6 +121,8 @@ To get the previous node, you can access `brush.pNode`. A simple brushTip functi
 		ctx.stroke();
 	}
 
+![Diagram of nodes](docs/lineBrushTio.gif)
+
 One problem with this brush is that it has jagged corners: it would be nicer to achieve a totally smooth path. This smooth path is computed for you and stored in `brush.smoothNodes`. By drawing a circle at each smooth node, we can get a much nicer looking brush stroke:
 
     function basicSmoothBrushTip(brush) {

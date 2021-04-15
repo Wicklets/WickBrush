@@ -1,5 +1,15 @@
 //simple, smooth, tire, stroke
 
+function basicLineBrushTip(brush) {
+    if (!brush.pNode) return;
+	let ctx = brush.canvas.getContext('2d');
+	ctx.beginPath();
+	ctx.moveTo(brush.pNode.x, brush.pNode.y);
+	ctx.lineTo(brush.node.x, brush.node.y);
+	ctx.stroke();
+    console.log(brush.node, brush.pNode);
+}
+
 //a*x1 + b*x2
 function add(x1, x2) {
     return {x: x1.x + x2.x, y: x1.y + x2.y};
