@@ -1,5 +1,3 @@
-//TODO smoothing
-
 function defaultBrush(b) {
     let left, right, top, bottom;
     let r0 = b.pPressure * b.pSize;
@@ -35,19 +33,19 @@ class WickBrush {
         this.changeNames = ['node', 'springNodes', 'smoothNodes', 'size', 'pressure', 'fillStyle', 'strokeStyle'];
         this.handlers = {};
         
-        this.smoothing = args.smoothing || 50; //TODO getter/setter
-        this.numNodes = args.numNodes || 10; //TODO getter/setter
+        this.numNodes = args.numNodes || 10;
         this.tension = args.tension || 10;
+        this.smoothing = args.smoothing || 50;
         this.catchUp = args.catchUp === undefined ? 
             true : 
             args.catchUp;
         this.includeSmoothNodes = args.includeSmoothNodes === undefined ? 
             true : 
-            args.includeSmoothNodes; //TODO getter/setter
+            args.includeSmoothNodes;
         this.smoothNodesSpacing = args.smoothNodesSpacing === undefined ? 
             2 :
-            args.smoothNodesSpacing; //TODO getter/setter
-        this.interval = args.interval || 10; //TODO getter/setter
+            args.smoothNodesSpacing;
+        this.interval = args.interval || 10;
         
         this.size = args.size || 40;
         this.pressure = 1;
@@ -71,11 +69,52 @@ class WickBrush {
         this.canvas = args.canvas;
 
         this.debug = args.debug;
-        // TODO: getters and setters for debugCanvas
+        // TODO: getter/setter for debugCanvas
         this.debugCanvas = args.debugCanvas;
         if (this.debugCanvas) {
             this.debugCanvas.style.pointerEvents = 'none';
         }
+    }
+
+    set smoothing(s) {
+        this._smoothing = s;
+        s = Math.max(0, Math.min(s, 100));
+        this.numNodes = Math.floor(s / 10);
+        this.tension = 100 - s;
+    }
+
+    get smoothing() {
+        return this._smoothing;
+    }
+
+    set numNodes(n) {
+        this._numNodes = Math.max(1, Math.floor(n));
+    }
+
+    get numNodes() {
+        return this._numNodes;
+    }
+
+    set tension(t) {
+        this._tension = Math.max(1, Math.min(t, 100));
+    }
+    
+    get tension() {
+        return this._tension;
+    }
+
+    set interval(i) {
+        this._interval = i;
+        if (this.handlers.interval) {
+            clearInterval(this.handlers.interval);
+
+            let drawHandler = function() {self.draw()};
+            this.handlers.interval = setInterval(drawHandler, this.interval);
+        }
+    }
+
+    get interval() {
+        return this._interval;
     }
 
     /**
@@ -359,7 +398,6 @@ class WickBrush {
         }
 
         if (!r) {
-            //update root node
             let rect = this.canvas.getBoundingClientRect();
             this.mouseX = e.clientX - rect.left;
             this.mouseY = e.clientY - rect.top;
