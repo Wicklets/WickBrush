@@ -39,7 +39,7 @@ These are all the properties that are computed for you, that are read only:
 |--|--|--|
 |`springNodes` | Node[] | the nodes used to smooth the mouse path | read only |
 |`node`  | Node | the last node of `springNodes`, good to use as a point to draw at | read only |
-|`pNode`  | Node | **node** from the previous draw step, `null` on the first step | read only |
+|`pNode`  | Node | `node` from the previous draw step, `null` on the first step | read only |
 |`nodes`  | Node[] | list of all the `node`s from this stroke, ordered first to last| read only |
 |`smoothNodes`  | Node[] | List of nodes that connect `node` from 2 drawing steps ago to `node` from 1 drawing step ago in a smooth path (this is intended to be used to draw a smooth path, as opposed to drawing a straight line from `pNode` to `node`) | read only |
 |`pSmoothNodes`  | Node[] | `smoothNodes` from the previous draw step, `null` on the first step | read only |
@@ -98,11 +98,11 @@ If you want to change properties at specific times in the stroke sequence, you c
 
 |function| arguments | when it's called |
 |--|--|--|
-| onDown | brush, 'onpointerdown' event from canvas | when the cursor is pressed down, before any drawing |
-| onDraw | brush | every draw step, before the drawing occurs |
-| onMove | brush, 'pointermove' event from window | every time the cursor is moved while drawing |
-| onUp | brush, 'pointerup' event from window | when the cursor is released, note that if `brush.catchUp` is true, then the catch up drawing will occur *after* onUp is called |
-| onStrokeFinished | brush | At the end of the stroke, after all drawing (including `catchUp` drawing). `brush.bounds` is totally calculated. |
+| `onDown` | brush, `'onpointerdown'` event from canvas | when the cursor is pressed down, before any drawing |
+| `onDraw` | brush | every draw step, before the drawing occurs |
+| onMove | brush, `'pointermove'` event from window | every time the cursor is moved while drawing |
+| `onUp` | brush, `'pointerup'` event from window | when the cursor is released, note that if `brush.catchUp` is true, then the catch up drawing will occur *after* onUp is called |
+| `onStrokeFinished` | brush | At the end of the stroke, after all drawing (including `catchUp` drawing). `brush.bounds` is totally calculated. |
 
 One very common use case is to change the `pressure`. Here's an example using the [pressure.js](https://pressurejs.com/) library:
 
@@ -125,7 +125,7 @@ Note the use of `brush.onDown` in case pressure.js doesn't set the pressure valu
 Before we go into how to actually write a BrushTip function, we should first explain the data that you will use to draw with, which are the nodes.
 
 ### Understanding Nodes
-![Diagram of nodes](docs/nodes.jpg)
+![Diagram of nodes](docs/images/nodes.jpg)
 
 A Node is just an object with an x and y coordinate. The way the brush works is by dragging a set of nodes (`brush.springNodes`) connected by "springs" behind the mouse. This has the effect of smoothing out the path that the mouse takes (to turn off smoothing, you can set `brush.smoothing = 0`, or `brush.numSpringNodes = 1`, or `brush.tension = 100`). On each drawing step, the end of the chain of `springNodes` is used as a point to draw at. This is called `brush.node`.
 
@@ -141,7 +141,7 @@ function basicLineBrushTip(brush) {
 }
 ```
 
-![Line brush tip](docs/lineBrushTip.gif)
+![Line brush tip](docs/images/lineBrushTip.gif)
 
 One problem with this brush is that it has jagged corners: it would be nicer to achieve a totally smooth path. This smooth path is computed for you and stored in `brush.smoothNodes`. By drawing a circle at each smooth node, we can get a much nicer looking brush stroke:
 
@@ -190,5 +190,7 @@ If for some reason you need the bounds of the stroke (we use it in Wick Editor t
 In developing this library, we took a lot of inspiration from [croquis.js](https://github.com/disjukr/croquis.js), so thanks to them!
 
 # License
+
+MIT License.
 
 Supported by [Wick Editor](https://www.wickeditor.com/).
