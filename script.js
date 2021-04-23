@@ -7,10 +7,10 @@ debugCanvas.width = window.innerWidth;
 debugCanvas.height = window.innerHeight;
 
 let brush = new WickBrush({
-    brushTip: basicLineBrushTip,
-    size: 10,
-    numNodes: 1, 
-    tension: 25, 
+    //brushTip: basicLineBrushTip,
+    size: 2,
+    numNodes: 5, 
+    tension: 90, 
     canvas: brushCanvas, 
     //debug: true, 
     debugCanvas: debugCanvas,

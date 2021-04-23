@@ -1,4 +1,3 @@
-//TODO change nodes to springNodes, change allNodes to nodes
 //smoothNodes smoothly connects nodes[l - 3] and nodes[l - 2]
 
 function defaultBrush(b) {
@@ -7,7 +6,7 @@ function defaultBrush(b) {
     let r1 = b.pressure * b.size;
     let ctx = b.canvas.getContext('2d');
     let pts = b.smoothNodes;
-    //ctx.fillColor = b.color;
+    ctx.fillStyle = b.fillStyle;
     for (let pt of pts) {
         let r = pt.t * r1 + (1 - pt.t) * r0;
         ctx.beginPath();
@@ -28,7 +27,7 @@ class WickBrush {
 
         this.bounds = {left: null, right: null, top: null, bottom: null};
 
-        this.changeNames = ['node', 'nodes', 'smoothNodes', 'size', 'pressure', 'color'];
+        this.changeNames = ['node', 'springNodes', 'smoothNodes', 'size', 'pressure', 'fillStyle', 'strokeStyle'];
         this.handlers = {};
         
         this.smoothing = args.smoothing || 50; //TODO getter/setter
@@ -47,8 +46,8 @@ class WickBrush {
         
         this.size = args.size || 40;
         this.pressure = 1;
-        this.fillColor = args.fillColor || '0x000000';
-        this.strokeColor = args.strokeColor || '0x000000';
+        this.fillStyle = args.fillStyle || '0x000000';
+        this.strokeStyle = args.strokeStyle || '0x000000';
 
         this.onDown = args.onDown;
         this.onDraw = args.onDraw;
@@ -141,7 +140,7 @@ class WickBrush {
             let name = property;
             if (this.changeNames.indexOf(name) === -1) this.changeNames.push(name);
             //TODO: add protected values that can't be changed?
-            //would prolly just be node nodes smoothNodes
+            //would prolly just be node springNodes smoothNodes
             this[name] = properties[property];
         }
     }
@@ -177,12 +176,12 @@ class WickBrush {
 
     calculateSmoothNodes() {
         this.smoothNodes = [];
-        let l = this.allNodes.length;
+        let l = this.nodes.length;
         if (l < 4) return;
-        let p0 = this.allNodes[l - 4];
-        let p1 = this.allNodes[l - 3];
-        let p2 = this.allNodes[l - 2];
-        let p3 = this.allNodes[l - 1];
+        let p0 = this.nodes[l - 4];
+        let p1 = this.nodes[l - 3];
+        let p2 = this.nodes[l - 2];
+        let p3 = this.nodes[l - 1];
         let t = 0;
         while (t < 1) {        
             let p = {
@@ -226,19 +225,19 @@ class WickBrush {
         this.bounds = {left: null, right: null, top: null, bottom: null};
         this.drawing = true;
 
-        //initialize nodes
-        this.nodes = [];
+        //initialize springNodes
+        this.springNodes = [];
         let rect = this.canvas.getBoundingClientRect();
         this.mouseX = e.clientX - rect.left;
         this.mouseY = e.clientY - rect.top;
         for (let n = 0; n < this.numNodes; n++) {
-            this.nodes.push({
+            this.springNodes.push({
                 x: this.mouseX,
                 y: this.mouseY
             });
         }
-        this.node = this.nodes[this.nodes.length - 1];
-        this.allNodes = [this.node];
+        this.node = this.springNodes[this.springNodes.length - 1];
+        this.nodes = [this.node];
         this.calculateSmoothNodes();
 
         //initialize previous values to null
@@ -270,30 +269,30 @@ class WickBrush {
         
         this.updatePrevious();
 
-        //update nodes
-        let newNodes = []; // needs to be a new list so pNodes is not just a shallow copy
+        //update springNodes
+        let newSpringNodes = []; // needs to be a new list so pNodes is not just a shallow copy
         let lastNode = null;
-        for (let node of this.nodes) {
+        for (let node of this.springNodes) {
             if (lastNode) {
                 //lerp
-                let t = this.tension / 100;
+                let t = 1 - this.tension / 100;
                 //again, needs to be new object so it's not just a shallow copy
-                newNodes.push({
+                newSpringNodes.push({
                     x: (1 - t) * lastNode.x + t * node.x, 
                     y: (1 - t) * lastNode.y + t * node.y
                 });
             }
             else {
-                newNodes.push({
+                newSpringNodes.push({
                     x: this.mouseX,
                     y: this.mouseY
                 });
             }
             lastNode = node;
         }
-        this.nodes = newNodes;
-        this.node = this.nodes[this.nodes.length - 1];
-        this.allNodes.push(this.node);
+        this.springNodes = newSpringNodes;
+        this.node = this.springNodes[this.springNodes.length - 1];
+        this.nodes.push(this.node);
 
         if (this.includeSmoothNodes) this.calculateSmoothNodes();
         
@@ -321,12 +320,12 @@ class WickBrush {
         this.onUp && this.onUp(this, e);
         
         if (this.catchUp) {
-            while(this.nodes.length >= 2) {
+            while(this.springNodes.length >= 2) {
                 this.updatePrevious();
 
-                this.nodes.pop();
-                this.node = this.nodes[this.nodes.length - 1]; //TODO: needs to be deep copy
-                this.allNodes.push(this.node);
+                this.springNodes.pop();
+                this.node = this.springNodes[this.springNodes.length - 1]; //TODO: needs to be deep copy
+                this.nodes.push(this.node);
 
                 this.calculateSmoothNodes();
 
@@ -379,10 +378,10 @@ class WickBrush {
             this.bounds.bottom - this.bounds.top);
         ctx.stroke();
 
-        //nodes
+        //springNodes
         ctx.strokeStyle = '#00FF00';
-        for (let n = 0; n < this.nodes.length; n++) {
-            let node = this.nodes[n];
+        for (let n = 0; n < this.springNodes.length; n++) {
+            let node = this.springNodes[n];
             
             ctx.beginPath();
             ctx.arc(node.x, node.y,5,0,2*Math.PI);
