@@ -43,9 +43,9 @@ These are all the properties that are computed for you, that are read only:
 |`nodes`  | Node[] | list of all the `node`s from this stroke, ordered first to last| read only |
 |`smoothNodes`  | Node[] | List of nodes that connect `node` from 2 drawing steps ago to `node` from 1 drawing step ago in a smooth path (this is intended to be used to draw a smooth path, as opposed to drawing a straight line from `pNode` to `node`) | read only |
 |`pSmoothNodes`  | Node[] | `smoothNodes` from the previous draw step, `null` on the first step | read only |
-|`bounds`| {left, right, top, bottom} | A rectangle bound of the current stroke. |
+|`bounds`| {left, right, top, bottom} | A rectangle bound of the current stroke. See [Bounds](#bounds) |
 
-These are all properties you can change.
+These are all properties you can change. This can happen at any time (continuously updating `pressure` is a common use-case). If you write your own BrushTip functions, you will probably read some of these values too.
 
 | property | type | description | default
 |--|--|--|--|
@@ -81,12 +81,12 @@ It doesn't have to be a built-in property, feel free to add custom properties:
 brush.myProp = 10;
 ```
 
-If you want the brush to keep track of the value of the property at each time step, then you can use the `brush.change` function. It takes an object as argument:
+If you want the brush to keep track of the value of the property at the previous time step (notice **not** the previous set value, but the previous *used* value at a draw step), then you can use the `brush.change` function. It takes an object as argument:
 
 ```javascript
 brush.change({
 	myProp1: 10,
-	myProp2: 'donkey',
+	myProp2: '0x000000',
 });
 ```
 
@@ -100,12 +100,11 @@ If you want to change properties at specific times in the stroke sequence, you c
 |--|--|--|
 | onDown | brush, 'onpointerdown' event from canvas | when the cursor is pressed down, before any drawing |
 | onDraw | brush | every draw step, before the drawing occurs |
-| onMove | brush, 'pointermove' event from window| every time the cursor is moved while drawing |
-| onUp | brush, 'pointerup' event from window| when the cursor is released, note that if `brush.catchUp` is true, then the catch up drawing will occur *after* onUp is called |
-| onStrokeFinished | brush | at the end of the stroke, after all drawing (including catch up drawing). `brush.bounds` is totally calculated, a good time to potrace if you are converting strokes to svg |
+| onMove | brush, 'pointermove' event from window | every time the cursor is moved while drawing |
+| onUp | brush, 'pointerup' event from window | when the cursor is released, note that if `brush.catchUp` is true, then the catch up drawing will occur *after* onUp is called |
+| onStrokeFinished | brush | At the end of the stroke, after all drawing (including `catchUp` drawing). `brush.bounds` is totally calculated. |
 
-
-One very common use case is to change the pressure. Here's an example using the [pressure.js](https://pressurejs.com/) library:
+One very common use case is to change the `pressure`. Here's an example using the [pressure.js](https://pressurejs.com/) library:
 
 ```javascript
 brush.onDown = function() {
@@ -120,15 +119,15 @@ Pressure.set(canvas, {
 });
 ```
 
-Note the use of `brush.onDown`, in case pressure.js doesn't set the pressure value on the brush before the first draw step.
+Note the use of `brush.onDown` in case pressure.js doesn't set the pressure value on the brush before the first draw step.
 
 ## How to make a BrushTip
-Before we go into how to actually write a brushTip function, we should first explain the data that you will use to draw with, which are the nodes.
+Before we go into how to actually write a BrushTip function, we should first explain the data that you will use to draw with, which are the nodes.
 
 ### Understanding Nodes
 ![Diagram of nodes](docs/nodes.jpg)
 
-A node is just an object with an x and y coordinate. The way the brush works is by dragging a set of nodes (`brush.springNodes`) connected by "springs" behind the mouse. This has the effect of smoothing out the path that the mouse takes (to turn off smoothing, you can set `brush.numSpringNodes = 1`, or `brush.tension = 100`). On each drawing step, the end of the chain of `springNodes` is used as a point to draw at. This is called `brush.node`.
+A Node is just an object with an x and y coordinate. The way the brush works is by dragging a set of nodes (`brush.springNodes`) connected by "springs" behind the mouse. This has the effect of smoothing out the path that the mouse takes (to turn off smoothing, you can set `brush.smoothing = 0`, or `brush.numSpringNodes = 1`, or `brush.tension = 100`). On each drawing step, the end of the chain of `springNodes` is used as a point to draw at. This is called `brush.node`.
 
 To get the previous node, you can access `brush.pNode`. A simple brushTip function might connect `node` and `pNode` with a line:
 
@@ -158,12 +157,13 @@ function basicSmoothBrushTip(brush) {
 ```
 
 ### Writing brushTip functions
+
 Now that you understand the nodes that are available to you, you can start creating your own BrushTips.
 
 The main way to customize your brush is to change the brushTip function. The function takes the WickBrush as an argument (which has the various nodes as properties), and draws on the canvas. A basic circle-tipped brush function looks like this:
 
 ```javascript
-function defaultBrush(brush) {
+function circleBrush(brush) {
 	let ctx = brush.canvas.getContext('2d');
 	ctx.fillStyle = brush.fillColor;
 	let r = brush.size * b.pressure / 2;
@@ -187,7 +187,7 @@ If for some reason you need the bounds of the stroke (we use it in Wick Editor t
 
 # Thanks
 
-In developing this library, we took a lot of inspiration from [Croquis](https://github.com/disjukr/croquis.js), so thanks to them!
+In developing this library, we took a lot of inspiration from [croquis.js](https://github.com/disjukr/croquis.js), so thanks to them!
 
 # License
 
