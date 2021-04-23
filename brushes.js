@@ -10,7 +10,17 @@ function basicLineBrushTip(brush) {
     console.log(brush.node, brush.pNode);
 }
 
-//a*x1 + b*x2
+function basicSmoothBrushTip(brush) {
+	let ctx = brush.canvas.getContext('2d');
+	for (let node of brush.smoothNodes) {
+		ctx.beginPath();
+		ctx.arc(node.x, node.y, 10, 0, 2 * Math.PI);
+		ctx.fill();
+	}
+}
+
+// Some helper functions for the tire brush
+
 function add(x1, x2) {
     return {x: x1.x + x2.x, y: x1.y + x2.y};
 }

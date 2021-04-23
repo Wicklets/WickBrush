@@ -1,4 +1,4 @@
-//smoothNodes smoothly connects nodes[l - 3] and nodes[l - 2]
+//TODO smoothing
 
 function defaultBrush(b) {
     let left, right, top, bottom;
@@ -22,6 +22,11 @@ function defaultBrush(b) {
 }
 
 class WickBrush {
+    /**
+    * Creates a WickBrush.
+    * @param {object} args - The arguments {canvas, brushTip, smoothing, numNodes, tension, smoothNodesSpacing, includeSmoothNodes, interval, catchUp, size, pressure, fillStyle, strokeStyle, onDown, onDraw, onMove, onUp, onStrokeFinished, debug, debugCanvas}
+    * @returns {WickBrush} - The created brush
+    */
     constructor(args) {
         if (!args) args = {};
 
@@ -73,6 +78,9 @@ class WickBrush {
         }
     }
 
+    /**
+     * @param {Boolean} b - Whether to draw on the debugCanvas or not.
+     */
     set debug(b) {
         if (b) {
             this._debug = true;
@@ -85,12 +93,24 @@ class WickBrush {
         }
     }
 
+    /**
+     * @returns {Boolean} - Whether drawing on the debugCanvas or not.
+     */
     get debug() {
         return this._debug;
     }
 
+    /**
+     * @param {canvas} canvas - The HTML Canvas to draw on.
+     */
     set canvas(canvas) {
-        this._canvas && this._canvas.removeEventListener('onpointerdown', this.handlers.canvas, false);
+        if (this._canvas) {
+            this._canvas.removeEventListener('onpointerdown', this.handlers.canvas, false);
+            let oldRect = this._canvas.getBoundingClientRect();
+            let newRect = canvas.getBoundingClientRect();
+            this.mouseX = this.mouseX + oldRect.left - newRect.left;
+            this.mouseY = this.mouseY + oldRect.top - newRect.top;
+        }
         this._canvas = canvas;
         this._canvas.addEventListener(
             'pointerdown',
@@ -98,10 +118,16 @@ class WickBrush {
             false);
     }
 
+    /**
+     * @returns {canvas} - The HTML Canvas to be drawn on.
+     */
     get canvas() {
         return this._canvas;
     }
 
+    /**
+     * @param {object} rect - {left, right, top, bottom} rectangle to include in brush.bounds.
+     */
     updateBounds(rect) {
         let l, r, t, b;
         if (!rect || 
@@ -135,16 +161,24 @@ class WickBrush {
         }
     }
 
+    /**
+     * @param {object} properties - An object in the form {property: value}. Each brush.property is set with value, and each property is added to brush.changeNames so its previous value is kept track of in brush.pProperty.
+     */
     change(properties) {
         for (const property in properties) {
             let name = property;
             if (this.changeNames.indexOf(name) === -1) this.changeNames.push(name);
             //TODO: add protected values that can't be changed?
-            //would prolly just be node springNodes smoothNodes
+            //would prolly just be node values and bounds
             this[name] = properties[property];
         }
     }
 
+    /**
+     * Returns an object containing the current value of all the properties listed in argNames. If argNames is not specified, then canvas and all the properties in brush.changeNames are returned.
+     * @param {Array} argNames - (Optional) A list of properties to be returned.
+     * @returns {object} - An object filled with arguments (to be used in a BrushTip function) {property: value}
+     */
     getArgs(argNames) {
         if (argNames) {
             let args = {};
@@ -166,6 +200,9 @@ class WickBrush {
         }
     }
 
+    /**
+     * Set all the pProperty values.
+     */
     updatePrevious() {
         for (let n = 0; n < this.changeNames.length; n++) {
             let name = this.changeNames[n];
@@ -174,6 +211,9 @@ class WickBrush {
         }
     }
 
+    /**
+     * Calculates smoothNodes between nodes[-3] and nodes[-2] using a Catmull-Rom spline with nodes[-4] and nodes[-1] as control points.
+     */
     calculateSmoothNodes() {
         this.smoothNodes = [];
         let l = this.nodes.length;
@@ -220,6 +260,10 @@ class WickBrush {
         }
     }
 
+    /**
+     * Start the stroke. Initializes bounds, drawing, springNodes, nodes, all the pProperties. Calls onDown. Sets up move handler, draw interval, and up handler.
+     * @param {Event} e - The canvas pointerdown event
+     */
     down(e) {
         //initialize bounds
         this.bounds = {left: null, right: null, top: null, bottom: null};
@@ -264,6 +308,9 @@ class WickBrush {
         this.handlers.interval = setInterval(drawHandler, this.interval);
     }
 
+    /**
+     * Called by the draw interval. Updates pProperties, springNodes, nodes, smoothNodes. Calls onDraw and brushTip. Updates bounds. Draws debug info.
+     */
     draw() {
         if (!this.drawing) return;
         
@@ -302,6 +349,9 @@ class WickBrush {
         this.debug && this.drawDebug(bound);
     }
 
+    /**
+     * Called by the window move handler. Updates the location of the mouse. 
+     */
     move(e) {
         let r = false;
         if (this.onMove) {
@@ -316,6 +366,10 @@ class WickBrush {
         }
     }
 
+    /**
+     * Lifts the pen. Calls onUp. Performs catchUp. Calculates bounds. Sets drawing to false. Cleans up move handler, up handler, draw interval. Calls onStrokeFinished.
+     * @param {Event} e - canvas pointerup event. 
+     */
     up(e) {
         this.onUp && this.onUp(this, e);
         
@@ -344,22 +398,27 @@ class WickBrush {
         this.onStrokeFinished && this.onStrokeFinished(this);
     }
 
+    /**
+     * Cancels the current stroke. Sets drawing to false. Removes move handler, up handler, draw interval.
+     */
     cancel() {
         this.drawing = false;
 
-        window.removeEventListener('pointermove', this.move);
-        window.removeEventListener('pointerup', this.up);
-        clearInterval(this.updateId);
-
-        //this.bounds = {x: undefined, y: undefined, width: 0, height: 0};
+        window.removeEventListener('pointermove', this.handlers.pointermove);
+        window.removeEventListener('pointerup', this.handlers.pointerup);
+        clearInterval(this.handlers.interval);
     }
 
-    drawDebug(bound) {
+    /**
+     * Draws debug info on debugCanvas.
+     */
+    drawDebug() {
         if (!this.debugCanvas) return;
         let ctx = this.debugCanvas.getContext('2d');
         ctx.clearRect(0, 0, this.debugCanvas.width, this.debugCanvas.height);
         
         //bound
+        let bound = this.bounds;
         ctx.strokeStyle = '#FF0000';
         if (bound) {
             
@@ -399,6 +458,9 @@ class WickBrush {
         }
     }
 
+    /**
+     * Should only call this if you're not using the brush any more. Cancels current stroke, removes down handler.
+     */
     cleanup() {
         if (this.drawing) this.cancel();
 
