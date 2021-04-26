@@ -39,3 +39,29 @@ html, body, div {
     overflow: auto;
     box-sizing: border-box;
 }
+
+#card {
+    overflow: hidden;
+    background-color: blue;
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+
+a {
+    position: relative;
+    box-sizing: border-box;
+}
+
+#cover {
+    padding-bottom: 56.25%;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+img {
+    position: absolute;
+    width: 100%;
+    box-sizing: border-box;
+}
