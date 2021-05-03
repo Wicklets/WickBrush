@@ -5,26 +5,43 @@
     <meta charset="utf-8" />
   </head>
   <body>
-    <script src="script.js"></script>
+    <script src="libraries/WickBrush.js"></script>
+    <script src="libraries/brushes.js"></script>
+    <script src="libraries/pressure.min.js"></script>
+
+    <canvas id="brushCanvas2"></canvas>
+    <canvas id="brushCanvas1"></canvas>
+    <canvas id="stampCanvas"></canvas>
+    <canvas id="debugCanvas"></canvas>
+    
     <div id="panel">
       <div id="header">
         <h1>
           <a href="https://github.com/Wicklets/WickBrush">WickBrush</a>
         </h1>
       </div>
-      <div id="content">
-        <div class="card">
-          <a href="./smoothBrush/index.html">
-            <div class="cover">
-              <img src="./smoothBrush/cover.jpg" loading="lazy">
-            </div>
-            <div class="title">smooth</div>
-          </a>
+      <div id="brushes">
+        <div class="brush">
+          <button id="smoothBrush">Smooth Brush</button>
+          <button id="tireBrush">Tire Brush</button>
         </div>
       </div>
     </div>
-    <iframe allow="fullscreen" id="viewer" src="./smoothBrush/index.html">
 
-    </iframe>
+    <div id="tools">
+      <div class="tool" id="clearTool">
+        <button id="clear">Clear</button>
+      </div>
+      <div class="tool" id="pressureTool">
+        <input type="checkbox" id="pressure" name="pressure">
+        <label for="pressure">Pressure</label>
+      </div>
+      <div class="tool" id="color1Tool">
+        <input type="color" id="color1" name="color1" value="#000000">
+        <label for="color1">Fill Color</label>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
   </body>
 </html>
