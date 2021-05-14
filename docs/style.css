@@ -31,8 +31,8 @@ canvas {
     left:unset;
     top:unset;
     right: 0;
+    background-color: rgba(100%, 100%, 100%, 50%);
     bottom: 0;
-    background-color: burlywood;
     border: 2px;
     border-style: solid;
 }
