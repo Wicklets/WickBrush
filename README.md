@@ -1,4 +1,6 @@
 # WickBrush
+See it in action: https://wicklets.github.io/WickBrush/
+
 WickBrush is a JavaScript library for creating drawing brushes on HTML canvases.
 
 # Installation
@@ -6,7 +8,7 @@ WickBrush is a JavaScript library for creating drawing brushes on HTML canvases.
 # Quick Start
 
 ## Basic Brush
-To create a brush, you make an instance of the WickBrush class, which requires a HTML Canvas to draw on:
+To create a brush, you make an instance of the WickBrush class, which requires an HTML Canvas to draw on:
 
 ```javascript
 let brush = new WickBrush({
@@ -17,16 +19,16 @@ let brush = new WickBrush({
 Now you can draw on your canvas!
 
 ## Custom BrushTips
-Custom BrushTips in WickBrush are just functions that draw onto an HTML Canvas. Simply import them from `/brushes.js` and pass them to your brush, or change the `brush.brushTip`:
+Custom BrushTips in WickBrush are just functions that draw onto an HTML Canvas. Simply import them from `/brushes` and pass them to your brush, or change the `brush.brushTip`:
 
 ```javascript
 let brush = new WickBrush({
 	canvas: canvas,
-	brushTip: crazyBrush,
+	brushTip: tireTip,
 	});
 	
 // You can also change the property at any time
-brush.brushTip = curlyBrush
+brush.brushTip = stampTip
 ```
 
 # API
@@ -100,7 +102,7 @@ If you want to change properties at specific times in the stroke sequence, you c
 |--|--|--|
 | `onDown` | brush, `'onpointerdown'` event from canvas | when the cursor is pressed down, before any drawing |
 | `onDraw` | brush | every draw step, before the drawing occurs |
-| onMove | brush, `'pointermove'` event from window | every time the cursor is moved while drawing |
+| `onMove` | brush, `'pointermove'` event from window | every time the cursor is moved while drawing |
 | `onUp` | brush, `'pointerup'` event from window | when the cursor is released, note that if `brush.catchUp` is true, then the catch up drawing will occur *after* onUp is called |
 | `onStrokeFinished` | brush | At the end of the stroke, after all drawing (including `catchUp` drawing). `brush.bounds` is totally calculated. |
 
@@ -132,7 +134,7 @@ A Node is just an object with an x and y coordinate. The way the brush works is 
 To get the previous node, you can access `brush.pNode`. A simple brushTip function might connect `node` and `pNode` with a line:
 
 ```javascript
-function basicLineBrushTip(brush) {
+function basicLineTip(brush) {
 	let ctx = brush.canvas.getContext('2d');
 	ctx.beginPath();
 	ctx.moveTo(brush.pNode.x, brush.pNode.y);
@@ -146,7 +148,7 @@ function basicLineBrushTip(brush) {
 One problem with this brush is that it has jagged corners: it would be nicer to achieve a totally smooth path. This smooth path is computed for you and stored in `brush.smoothNodes`. By drawing a circle at each smooth node, we can get a much nicer looking brush stroke:
 
 ```javascript
-function basicSmoothBrushTip(brush) {
+function basicSmoothTip(brush) {
 	let ctx = brush.canvas.getContext('2d');
 	for (let node of brush.smoothNodes) {
 		ctx.beginPath();
@@ -155,6 +157,8 @@ function basicSmoothBrushTip(brush) {
 	}
 }
 ```
+
+![Line brush tip](docs/images/basicSmoothTip.gif)
 
 ### Writing brushTip functions
 
@@ -176,7 +180,10 @@ function circleBrush(brush) {
 }
 ```
 
-If you want a square tipped brush instead, you could replace the drawing of the circle with a drawing of a rectangle `ctx.fillRect(pt.x - r, pt.y - r, r*2, r*2)`.
+If you want a square tipped brush instead, you could replace the drawing of the circle with a drawing of a rectangle `ctx.fillRect(pt.x - r, pt.y - r, r*2, r*2)`:
+
+![Line brush tip](docs/images/squareTip.gif)
+
 
 ### Bounds
 If for some reason you need the bounds of the stroke (we use it in Wick Editor to convert the stroke to an svg), then you can have your BrushTip function return the bounds of what it drew, in the form `{left, right, top, bottom}`, and the brush will expand `brush.bounds` to include that rectangle. If nothing is returned, then `node` is used as the point to include in `bounds`.
