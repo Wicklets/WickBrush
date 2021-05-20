@@ -1,7 +1,8 @@
+//TODO: put defaultBrush in a different file and package it all together
 function defaultBrush(b) {
     let left, right, top, bottom;
-    let r0 = b.pPressure * b.pSize;
-    let r1 = b.pressure * b.size;
+    let r0 = b.pPressure * b.pSize / 2;
+    let r1 = b.pressure * b.size / 2;
     let ctx = b.canvas.getContext('2d');
     let pts = b.smoothNodes;
     ctx.fillStyle = b.fillStyle;
@@ -22,7 +23,7 @@ function defaultBrush(b) {
 class WickBrush {
     /**
     * Creates a WickBrush.
-    * @param {object} args - The arguments {canvas, brushTip, smoothing, numNodes, tension, smoothNodesSpacing, includeSmoothNodes, interval, catchUp, size, pressure, fillStyle, strokeStyle, onDown, onDraw, onMove, onUp, onStrokeFinished, debug, debugCanvas}
+    * @param {object} args - The arguments {canvas, brushTip, smoothing, numNodes, tension, smoothNodesSpacing, includeSmoothNodes, interval, catchUp, size, pressure, fillStyle, strokeStyle, onDown, onDraw, onMove, onUp, onStrokeFinished, debug, debugCanvas, manualEvents}
     * @returns {WickBrush} - The created brush
     */
     constructor(args) {
@@ -62,6 +63,8 @@ class WickBrush {
 
         this.brushTip = args.brushTip || defaultBrush;
         
+        // TODO: manualEvents == true should prevent events from being attached to canvas
+
         let self = this;
         this.handlers.canvas = function(e) {
             self.down(e);
@@ -304,6 +307,8 @@ class WickBrush {
      * @param {Event} e - The canvas pointerdown event
      */
     down(e) {
+        this.move(e);
+
         //initialize bounds
         this.bounds = {left: null, right: null, top: null, bottom: null};
         this.drawing = true;

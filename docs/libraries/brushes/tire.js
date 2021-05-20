@@ -1,26 +1,3 @@
-//simple, smooth, tire, stroke
-
-function basicLineBrushTip(brush) {
-    if (!brush.pNode) return;
-	let ctx = brush.canvas.getContext('2d');
-	ctx.beginPath();
-	ctx.moveTo(brush.pNode.x, brush.pNode.y);
-	ctx.lineTo(brush.node.x, brush.node.y);
-	ctx.stroke();
-    console.log(brush.node, brush.pNode);
-}
-
-function basicSmoothBrushTip(brush) {
-	let ctx = brush.canvas.getContext('2d');
-	for (let node of brush.smoothNodes) {
-		ctx.beginPath();
-		ctx.arc(node.x, node.y, 10, 0, 2 * Math.PI);
-		ctx.fill();
-	}
-}
-
-// Some helper functions for the tire brush
-
 function add(x1, x2) {
     return {x: x1.x + x2.x, y: x1.y + x2.y};
 }
@@ -136,18 +113,5 @@ function tire(b) {
             t = nextT;
             i = Math.floor(t / tireLength);
         }
-    }
-}
-
-function stampTip(b) {
-    let ctx = b.canvas.getContext('2d');
-    let s = b.stampCanvas;
-    if (!s) return;
-
-    let r = b.size/2 * b.pressure
-    
-    for (let i = 0; i < b.smoothNodes.length; i++) {
-        let node = b.smoothNodes[i];
-        ctx.drawImage(s, 0, 0, s.width, s.height, node.x - r, node.y - r, r*2, r*2);
     }
 }
