@@ -23,7 +23,8 @@ function tire(b) {
 
     let r = b.size;
     let ctx = b.canvas.getContext('2d');
-    ctx.fillStyle = b.color;
+    ctx.fillStyle = b.fillStyle;
+    ctx.strokeStyle = b.fillStyle;
     //tack on a few previous nodes to give ourselves some
     //incoming velocity information for the first few nodes
     if (b.pSmoothNodes) {
