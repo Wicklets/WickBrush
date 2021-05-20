@@ -1,8 +1,9 @@
 let clear = document.getElementById("clear");
+let size = document.getElementById("size");
 let pressure = document.getElementById("pressure");
 let stampPressure = document.getElementById("stampPressure");
 let color1 = document.getElementById("color1");
-const toolNames = ["clear", "pressure", "stampPressure", "color1"];
+const toolNames = ["clear", "pressure", "stampPressure", "color1", "size"];
 
 function showElements(elts) {
     for (let toolName of toolNames) {
@@ -38,7 +39,7 @@ function resizeCanvases() {
 
 resizeCanvases();
 window.onresize = resizeCanvases;
-showElements({clear: true, pressure: true, color1: true});
+showElements({clear: true, pressure: true, color1: true, size: true});
 
 let brush = new WickBrush({
     canvas: brushCanvas1,
@@ -55,20 +56,20 @@ let stampBrushButton = document.getElementById("stampBrush");
 smoothBrushButton.onclick = function() {
     brush.canvas = brushCanvas1;
     brush.brushTip = defaultBrush;
-    showElements({clear: true, pressure: true, color1: true})
+    showElements({clear: true, pressure: true, color1: true, size: true})
 }
 
 tireBrushButton.onclick = function() {
     brush.canvas = brushCanvas1;
-    brush.brushTip = tire;
-    showElements({clear: true, color1: true});
+    brush.brushTip = tireTip;
+    showElements({clear: true, color1: true, size: true});
 }
 
 stampBrushButton.onclick = function() {
     brush.canvas = brushCanvas1;
     brush.brushTip = stampTip;
     brush.stampCanvas = stampCanvas;
-    showElements({clear: true, pressure: true, stampPressure: true, color1: true, stampCanvas: true})
+    showElements({clear: true, pressure: true, stampPressure: true, color1: true, stampCanvas: true, size: true})
 }
 
 clear.onclick = function() {
@@ -76,6 +77,11 @@ clear.onclick = function() {
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+}
+
+size.onchange = function(e) {
+    brush.size = e.target.value;
+    brush2.size = e.target.value;
 }
 
 let force = 1;

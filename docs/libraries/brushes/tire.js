@@ -16,7 +16,7 @@ function rot(x) {
 
 let tireLength = 10;
 let tireWidth = 10;
-function tire(b) {
+function tireTip(b) {
     if (!b.tireTime) b.tireTime = 0;
 
     //let left, right, top, bottom;
