@@ -50,12 +50,19 @@ let brush2 = new WickBrush({
 })
 
 let smoothBrushButton = document.getElementById("smoothBrush");
+let squareBrushButton = document.getElementById("squareBrush");
 let tireBrushButton = document.getElementById("tireBrush");
 let stampBrushButton = document.getElementById("stampBrush");
 
 smoothBrushButton.onclick = function() {
     brush.canvas = brushCanvas1;
     brush.brushTip = defaultBrush;
+    showElements({clear: true, pressure: true, color1: true, size: true})
+}
+
+squareBrushButton.onclick = function() {
+    brush.canvas = brushCanvas1;
+    brush.brushTip = squareTip;
     showElements({clear: true, pressure: true, color1: true, size: true})
 }
 
