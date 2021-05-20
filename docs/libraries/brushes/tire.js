@@ -14,10 +14,11 @@ function rot(x) {
     return {x: -x.y, y: x.x};
 }
 
-let tireLength = 10;
-let tireWidth = 10;
 function tireTip(b) {
     if (!b.tireTime) b.tireTime = 0;
+
+    let tireLength = b.size;
+    let tireWidth = b.size;
 
     //let left, right, top, bottom;
 
