@@ -1,5 +1,5 @@
-//TODO: put defaultBrush in a different file and package it all together
-function defaultBrush(b) {
+//TODO: put defaultTip in a different file and package it all together
+function defaultTip(b) {
     let left, right, top, bottom;
     let r0 = b.pPressure * b.pSize / 2;
     let r1 = b.pressure * b.size / 2;
@@ -9,7 +9,6 @@ function defaultBrush(b) {
     for (let pt of pts) {
         let r = pt.t * r1 + (1 - pt.t) * r0;
         ctx.beginPath();
-        ctx.moveTo(pt.x, pt.y);
         ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI);
         ctx.fill();
         left = left === undefined ? pt.x - r : Math.min(left, pt.x - r);
@@ -61,7 +60,7 @@ class WickBrush {
 
         this.drawing = false;
 
-        this.brushTip = args.brushTip || defaultBrush;
+        this.brushTip = args.brushTip || defaultTip;
         
         // TODO: manualEvents == true should prevent events from being attached to canvas
 
@@ -83,7 +82,7 @@ class WickBrush {
         this._smoothing = s;
         s = Math.max(0, Math.min(s, 100));
         this.numNodes = Math.floor(s / 10);
-        this.tension = 100 - s;
+        this.tension = (100 - s * 0.90);
     }
 
     get smoothing() {
@@ -257,6 +256,8 @@ class WickBrush {
      * Calculates smoothNodes between nodes[-3] and nodes[-2] using a Catmull-Rom spline with nodes[-4] and nodes[-1] as control points.
      */
     calculateSmoothNodes() {
+        let pSmoothNode = null;
+        if (this.smoothNodes && this.smoothNodes.length) pSmoothNode = this.smoothNodes[this.smoothNodes.length - 1];
         this.smoothNodes = [];
         let l = this.nodes.length;
         if (l < 4) return;
@@ -264,8 +265,25 @@ class WickBrush {
         let p1 = this.nodes[l - 3];
         let p2 = this.nodes[l - 2];
         let p3 = this.nodes[l - 1];
+        let d01 = Math.sqrt(Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2));
+        let d12 = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+        let d23 = Math.sqrt(Math.pow(p3.x - p2.x, 2) + Math.pow(p3.y - p2.y, 2));
+        if (d01 > d12) {
+            let f = d12 / d01;
+            p0 = {
+                x: p1.x * (1 - f) + p0.x * f,
+                y: p1.y * (1 - f) + p0.y * f
+            }
+        }
+        if (d23 > d12) {
+            let f = d12 / d23;
+            p3 = {
+                x: p2.x * (1 - f) + p3.x * f,
+                y: p2.y * (1 - f) + p3.y * f
+            }
+        }
         let t = 0;
-        while (t < 1) {        
+        while (t < 1) {
             let p = {
                 x: 0.5 * (
                     2 * p1.x + 
@@ -307,7 +325,10 @@ class WickBrush {
      * @param {Event} e - The canvas pointerdown event
      */
     down(e) {
-        this.move(e);
+        //set mouse position
+        let rect = this.canvas.getBoundingClientRect();
+        this.mouseX = e.clientX - rect.left;
+        this.mouseY = e.clientY - rect.top;
 
         //initialize bounds
         this.bounds = {left: null, right: null, top: null, bottom: null};
@@ -315,9 +336,6 @@ class WickBrush {
 
         //initialize springNodes
         this.springNodes = [];
-        let rect = this.canvas.getBoundingClientRect();
-        this.mouseX = e.clientX - rect.left;
-        this.mouseY = e.clientY - rect.top;
         for (let n = 0; n < this.numNodes; n++) {
             this.springNodes.push({
                 x: this.mouseX,
